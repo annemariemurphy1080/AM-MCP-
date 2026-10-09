@@ -36,6 +36,10 @@ app.put('/tasks/:id', (req, res) => {
 app.delete('/tasks/:id', (req, res) => {
   const idx = tasks.findIndex(t => t.id === Number(req.params.id));
   if (idx === -1) return res.status(404).json({ error: 'Task not found' });
+  const task = tasks[idx];
+  if (task.ownerId && req.user?.id !== task.ownerId) {
+    return res.status(403).json({ error: 'Forbidden: you do not own this task' });
+  }
   tasks.splice(idx, 1);
   res.status(204).send();
 });
