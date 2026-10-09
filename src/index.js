@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+const VALID_PRIORITIES = ['low', 'medium', 'high', 'urgent'];
 const tasks = [];
 const projects = [];
 
@@ -15,7 +16,15 @@ app.get('/tasks', (req, res) => {
 });
 
 app.post('/tasks', (req, res) => {
-  const task = { id: Date.now(), createdAt: new Date(), status: 'open', ...req.body };
+  const { title, priority } = req.body;
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    return res.status(400).json({ error: 'title is required' });
+  }
+  if (priority !== undefined && !VALID_PRIORITIES.includes(priority)) {
+    return res.status(400).json({ error: `priority must be one of: ${VALID_PRIORITIES.join(', ')}` });
+  }
+  const { id: _id, createdAt: _c, status: _s, ...allowed } = req.body;
+  const task = { id: Date.now(), createdAt: new Date(), status: 'open', ...allowed };
   tasks.push(task);
   res.status(201).json(task);
 });
