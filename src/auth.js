@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'changeme';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable must be set');
+}
+
+const SECRET = process.env.JWT_SECRET;
 
 function generateToken(user) {
   return jwt.sign({ id: user.id, email: user.email }, SECRET, { expiresIn: '24h' });
